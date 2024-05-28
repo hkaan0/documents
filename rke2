@@ -1,0 +1,28 @@
+### Master Node ###
+
+curl -sfL https://get.rke2.io | sh -
+systemctl enable rke2-server.service
+systemctl start rke2-server.service
+
+#adding kubectl path
+ln -s /var/lib/rancher/rke2/bin/kubectl /usr/local/bin/kubectl
+/usr/local/bin/kubectl completion bash > /usr/share/bash-completion/completions/kubectl
+chmod 644 /usr/share/bash-completion/completions/kubectl
+#adding kube config
+mkdir .kube 
+cat /etc/rancher/rke2/rke2.yaml #copy config
+cd .kube 
+vim config #paste rke2.yaml
+
+### Worker Node ###
+curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE="agent" sh -
+systemctl enable rke2-agent.service
+mkdir -p /etc/rancher/rke2/
+vim /etc/rancher/rke2/config.yaml
+
+### paste to config.yaml ###
+
+server: https://<master's ip>:9345
+token: <inside the master node  /var/lib/rancher/rke2/server/node-token>
+
+systemctl start rke2-agent.service
